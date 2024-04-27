@@ -10,6 +10,10 @@ Run `npm start` for a dev server. Navigate to `http://localhost:4200/`. The appl
 
 The backend for this project is available in `https://github.com/AdelaneJunior/HashLogin`, thanks AdelaneJunior and MJunior10 for helping in this project
 
+you will need Maven installed to use the backend
+
+Use `mvn spring-boot:run` to start the backend server
+
 ## Further help
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
