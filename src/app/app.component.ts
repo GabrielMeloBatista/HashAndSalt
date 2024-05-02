@@ -73,19 +73,17 @@ export class AppComponent implements OnInit {
     if (this.mostrarCadastro) {
           this.cadastroService.cadastro({body: usuario})
             .subscribe((response) => {
-              this.mensagem = 'Cadastro realizado com sucesso! Salt:' + this.salt.toString();
-            }, error => {
-              this.mensagem = 'Erro ao realizar cadastro.';
-              console.error(error);
+              this.mensagem = 'Cadastro realizado com sucesso! Salt: ' + this.salt;
             });
         } else {
-          this.loginService.login({body: usuario})
+          this.loginService.login$Response({body: usuario})
             .subscribe((response) => {
               // Process login success (e.g., redirect)
-              this.mensagem = 'Login realizado com sucesso!';
-            }, error => {
-              this.mensagem = 'Erro ao realizar login.';
-              console.error(error);
+              if (response.ok)
+                this.mensagem = 'Login realizado com sucesso! ' + response.statusText;
+              else
+                this.mensagem = 'Erro ao realizar login. ';
+              console.log(response)
             });
         }
     }
