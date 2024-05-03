@@ -10,7 +10,7 @@ import {UsuarioDto} from './api/models'
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-  public mostrarCadastro = true;
+  public mostrarCadastro = false;
   formGroup!: FormGroup;
   mensagem: string = '';
   salt: number = 256789; // em caso de erro em calculo de SALT esse numero será utilizado, não e recomendado esta pratica pois em caso de invasão do codigo fonte torna a hash vulneravel
@@ -40,35 +40,11 @@ export class AppComponent implements OnInit {
   encriptData(data: string): string {
     // Biblioteca Crypto e padrão do node e não precisa ser instalada.
 
-    /* Ressalvas de segurança importantes:
-
-      1 - Maturidade e Manutenção : Desenvolvimento Lento e menos ativo o que pode tornar seus periodos de atualização demorado
-
-      2 - Dependencias: Por ser uma biblioteca bastante extensa ela faz integrações de muitas dependencia o que pode aumentar a chance de conter vulnerabilidade
-
-      3 - Revisões de Codigo: ela não e completamente auditada o que aumenta a probabilidade de falhas de segurança
-
-      4 - Performance: Apresenta menos eficiencia para grandes volumes de dados
-
-    */
     return crypto.SHA256(data).toString();
   }
 
   // Captura o movimento do mouse, gerando salt aleatorios a cada movimento do mouse
-  /*
-      1 - Previsibilidade:
-              Mouse pode ser previsível.
-              Ataque possível se o movimento for controlado.
-      2 - Entropia:
-              Entropia do mouse pode ser insuficiente.
-              Considere fontes adicionais.
-      3 - Dependência do Ambiente:
-              Funciona apenas em ambientes com mouse.
-              Ineficaz em servidores sem mouse.
-      4 - Desempenho:
-              Impacto no desempenho pode ser significativo.
-              Avaliar custo versus benefício.
-   */
+
   @HostListener('document:mousemove', ['$event'])
   async onmousemove(event: MouseEvent) {
     let mouseEntropy = event.clientX + event.clientY;
@@ -100,19 +76,20 @@ export class AppComponent implements OnInit {
     usuario.senha = this.encriptData(this.formGroup.get('senha')?.value);
 
     if (this.mostrarCadastro) {
-          this.cadastroService.cadastro({body: usuario})
+          this.cadastroService.cadastro$Response({body: usuario})
             .subscribe((response) => {
-              this.mensagem = 'Cadastro realizado com sucesso! Salt: ' + this.salt;
+              if (response.status >= 200 || response.status < 300)
+                this.mensagem = 'Cadastro realizado com sucesso! Salt: ' + this.salt;
             });
         } else {
           this.loginService.login$Response({body: usuario})
             .subscribe((response) => {
               // Process login success (e.g., redirect)
-              if (response.ok)
-                this.mensagem = 'Login realizado com sucesso! ' + response.statusText;
-              else
-                this.mensagem = 'Erro ao realizar login. ';
-              console.log(response)
+              if (response.status == 200) {
+                this.mensagem = 'Login realizado com sucesso!';
+              }
+            }, error => {
+              this.mensagem = 'Erro ao realizar login.';
             });
         }
     }
